@@ -65,6 +65,37 @@
 						"Namespace": "aws:elasticbeanstalk:environment",
 						"OptionName": "EnvironmentType",
 						"Value": "LoadBalanced"
+					},
+					{
+						"Namespace": "aws:elasticbeanstalk:application:environment",
+						"OptionName": "DB",
+						"Value": {
+							"Fn::Join": [
+								"",
+								"mongodb://",
+								{
+									"Fn::GetAtt": [
+										"MongoStack",
+										"Outputs.PrimaryReplicaNodeIp"
+									]
+								}
+							]
+						}
+					},
+					{
+						"Namespace": "aws:elasticbeanstalk:application:environment",
+						"OptionName": "DB_NAME",
+						"Value": "admin"
+					},
+					{
+						"Namespace": "aws:elasticbeanstalk:application:environment",
+						"OptionName": "DB_USER",
+						"Value": "admin"
+					},
+					{
+						"Namespace": "aws:elasticbeanstalk:application:environment",
+						"OptionName": "DB_PASS",
+						"Value": "todo-deploy"
 					}
 				],
 				"SolutionStackName": "64bit Amazon Linux 2018.03 v4.8.3 running Node.js"
