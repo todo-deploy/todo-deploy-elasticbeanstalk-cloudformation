@@ -1,0 +1,115 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Tododeploy on Elastic Beanstalk",
+	"Metadata": {
+		"AWS::CloudFormation::Interface": {}
+	},
+	"Parameters": {
+		"KeyPairName": {
+			"Type": "AWS::EC2::KeyPair::KeyName",
+			"Description": "Public/private key pairs allow you to securely connect to your instance after it launches"
+		},
+		"BucketName": {
+			"Type": "String",
+			"Description": "Bucket name with todo-app packages"
+		},
+		"PackageName": {
+			"Type": "String",
+			"Description": "Package name in the S3 Bucket"
+		}
+	},
+	"Conditions": {},
+	"Resources": {
+		"todoApplication": {
+			"Type": "AWS::ElasticBeanstalk::Application",
+			"Properties": {
+				"Description": "Todo Application"
+			}
+		},
+		"todoApplicationVersion": {
+			"Type": "AWS::ElasticBeanstalk::ApplicationVersion",
+			"Properties": {
+				"ApplicationName": {
+					"Ref": "todoApplication"
+				},
+				"Description": "Todo Application Version",
+				"SourceBundle": {
+					"S3Bucket": {
+						"Ref": "BucketName"
+					},
+					"S3Key": {
+						"Ref": "PackageName"
+					}
+				}
+			}
+		},
+		"todoConfigurationTemplate": {
+			"Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
+			"Properties": {
+				"ApplicationName": {
+					"Ref": "todoApplication"
+				},
+				"Description": "AWS ElasticBeanstalk Sample Configuration Template",
+				"OptionSettings": [
+					{
+						"Namespace": "aws:autoscaling:asg",
+						"OptionName": "MinSize",
+						"Value": "2"
+					},
+					{
+						"Namespace": "aws:autoscaling:asg",
+						"OptionName": "MaxSize",
+						"Value": "6"
+					},
+					{
+						"Namespace": "aws:elasticbeanstalk:environment",
+						"OptionName": "EnvironmentType",
+						"Value": "LoadBalanced"
+					}
+				],
+				"SolutionStackName": "64bit Amazon Linux running PHP 5.3"
+			}
+		},
+		"devEnvironment": {
+			"Type": "AWS::ElasticBeanstalk::Environment",
+			"Properties": {
+				"ApplicationName": {
+					"Ref": "todoApplication"
+				},
+				"Description": "Dev Environment for the todo-app",
+				"TemplateName": {
+					"Ref": "todoConfigurationTemplate"
+				},
+				"VersionLabel": {
+					"Ref": "todoApplicationVersion"
+				}
+			}
+		},
+		"MongoStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "https://aws-quickstart.s3.amazonaws.com/quickstart-mongodb/templates/mongodb-master.template",
+				"Parameters": {
+					"NumberOfAZs": 2,
+					"AvailabilityZones": "us-west-2a,us-west-2b",
+					"KeyPairName": {
+						"Ref": "KeyPairName"
+					},
+					"RemoteAccessCIDR": "10.0.0.0/24",
+					"MongoDBAdminPassword": "todo-deploy"
+				}
+			}
+		}
+	},
+	"Outputs": {
+		"PrimaryReplicaNodeIp": {
+			"Value": {
+				"Fn::GetAtt": [
+					"MongoStack",
+					"Outputs.PrimaryReplicaNodeIp"
+				]
+			},
+			"Description": "Private IP Address of Primary Replica Node"
+		}
+	}
+}
