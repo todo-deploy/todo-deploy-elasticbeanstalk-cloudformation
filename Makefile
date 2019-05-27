@@ -9,7 +9,7 @@ up:
 	zip -r ../$(package_name) * && \
 	cd .. && \
 	aws ec2 create-key-pair --key-name $(key_name) --region us-west-2 && \
-	aws s3 mb $(bucket_name) && \
+	aws s3 mb s3://$(bucket_name) && \
 	aws s3 cp $(package_name) s3://$(bucket_name)/$(package_name) && \
 	aws cloudformation create-stack \
 	--stack-name $(stack_name) \
