@@ -126,7 +126,7 @@
 					"KeyPairName": {
 						"Ref": "KeyPairName"
 					},
-					"RemoteAccessCIDR": "10.0.0.0/24",
+					"RemoteAccessCIDR": "0.0.0.0/0",
 					"MongoDBAdminPassword": "todo-deploy",
 					"ClusterReplicaSetCount": 1
 				}
