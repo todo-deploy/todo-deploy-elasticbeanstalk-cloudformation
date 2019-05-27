@@ -67,7 +67,7 @@
 						"Value": "LoadBalanced"
 					}
 				],
-				"SolutionStackName": "64bit Amazon Linux running PHP 5.3"
+				"SolutionStackName": "64bit Amazon Linux 2018.03 v4.8.3 running Node.js"
 			}
 		},
 		"devEnvironment": {
