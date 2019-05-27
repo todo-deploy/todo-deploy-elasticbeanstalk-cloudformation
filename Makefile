@@ -23,4 +23,5 @@ up:
 
 down:
 	aws cloudformation delete-stack --stack-name $(stack_name) && \
+	aws s3 rb s3://$(bucket_name) --force && \
 	aws ec2 delete-key-pair --key-name $(key_name)
