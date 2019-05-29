@@ -11,13 +11,13 @@ up:
 	aws ec2 create-key-pair --key-name $(key_name) --region us-west-2 && \
 	aws s3 mb s3://$(bucket_name) && \
 	aws s3 cp $(package_name) s3://$(bucket_name)/$(package_name) && \
-	aws cloudformation create-stack \
+	aws cloudformation deploy \
 	--stack-name $(stack_name) \
-	--template-body file://todoapp.template \
-	--parameters \
-	ParameterKey=KeyPairName,ParameterValue=$(key_name) \
-	ParameterKey=BucketName,ParameterValue=$(bucket_name) \
-	ParameterKey=PackageName,ParameterValue=$(package_name) \
+	--template-file todoapp.template \
+	--parameter-overrides \
+	KeyPairName=$(key_name) \
+	BucketName=$(bucket_name) \
+	PackageName=$(package_name) \
 	--capabilities CAPABILITY_IAM \
 	--region us-west-2
 
