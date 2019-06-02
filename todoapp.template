@@ -192,7 +192,7 @@
 		"MongoStack": {
 			"Type": "AWS::CloudFormation::Stack",
 			"Properties": {
-				"TemplateURL": "https://aws-quickstart.s3.amazonaws.com/quickstart-mongodb/templates/mongodb-master.template",
+				"TemplateURL": "https://s3.amazonaws.com/todo-deploy-cloudformation/mongodb-master.template",
 				"Parameters": {
 					"NumberOfAZs": 2,
 					"AvailabilityZones": "us-west-2a,us-west-2b",
