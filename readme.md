@@ -5,7 +5,6 @@ This is part of the [todo-deploy](https://tododeploy.com) project
 ### Prerequisites
 
 - [aws cli](https://aws.amazon.com/cli/)
-- [eb cli](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html)
 
 ### Running
 
