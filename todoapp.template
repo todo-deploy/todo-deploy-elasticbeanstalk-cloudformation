@@ -72,13 +72,15 @@
 						"Value": {
 							"Fn::Join": [
 								"",
-								"mongodb://",
-								{
-									"Fn::GetAtt": [
-										"MongoStack",
-										"Outputs.PrimaryReplicaNodeIp"
-									]
-								}
+								[
+									"mongodb://",
+									{
+										"Fn::GetAtt": [
+											"MongoStack",
+											"Outputs.PrimaryReplicaNodeIp"
+										]
+									}
+								]
 							]
 						}
 					},
@@ -96,6 +98,67 @@
 						"Namespace": "aws:elasticbeanstalk:application:environment",
 						"OptionName": "DB_PASS",
 						"Value": "todo-deploy"
+					},
+					{
+						"Namespace": "aws:ec2:vpc",
+						"OptionName": "VPCId",
+						"Value": {
+							"Fn::GetAtt": [
+								"MongoStack",
+								"Outputs.VPCID"
+							]
+						}
+					},
+					{
+						"Namespace": "aws:ec2:vpc",
+						"OptionName": "Subnets",
+						"Value": {
+							"Fn::Join": [
+								",",
+								[
+									{
+										"Fn::GetAtt": [
+											"MongoStack",
+											"Outputs.PrivateSubnet1"
+										]
+									},
+									{
+										"Fn::GetAtt": [
+											"MongoStack",
+											"Outputs.PrivateSubnet2"
+										]
+									}
+								]
+							]
+						}
+					},
+					{
+						"Namespace": "aws:ec2:vpc",
+						"OptionName": "ELBSubnets",
+						"Value": {
+							"Fn::Join": [
+								",",
+								[
+									{
+										"Fn::GetAtt": [
+											"MongoStack",
+											"Outputs.PublicSubnet1"
+										]
+									},
+									{
+										"Fn::GetAtt": [
+											"MongoStack",
+											"Outputs.PublicSubnet2"
+										]
+									}
+								]
+							]
+						}
+					},
+					{
+						"Namespace": "aws:ec2:vpc",
+						"OptionName": "AssociatePublicIpAddress",
+						"Value": "false"
 					}
 				],
 				"SolutionStackName": "64bit Amazon Linux 2018.03 v4.8.3 running Node.js"
