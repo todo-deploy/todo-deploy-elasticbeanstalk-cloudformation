@@ -20,6 +20,26 @@
 	},
 	"Conditions": {},
 	"Resources": {
+		"VPCStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "https://aws-quickstart.s3.amazonaws.com/quickstart-aws-vpc/templates/aws-vpc.template",
+				"Parameters": {
+					"AvailabilityZones": "us-west-2a,us-west-2b",
+					"KeyPairName": {
+						"Ref": "KeyPairName"
+					},
+					"NumberOfAZs": 2,
+					"PrivateSubnet1ACIDR": "10.0.0.0/19",
+					"PrivateSubnet2ACIDR": "10.0.32.0/19",
+					"PrivateSubnet3ACIDR": "10.0.64.0/19",
+					"PublicSubnet1CIDR": "10.0.128.0/20",
+					"PublicSubnet2CIDR": "10.0.144.0/20",
+					"PublicSubnet3CIDR": "10.0.160.0/20",
+					"VPCCIDR": "10.0.0.0/16"
+				}
+			}
+		},
 		"todoApplication": {
 			"Type": "AWS::ElasticBeanstalk::Application",
 			"Properties": {
@@ -114,7 +134,7 @@
 						"OptionName": "VPCId",
 						"Value": {
 							"Fn::GetAtt": [
-								"MongoStack",
+								"VPCStack",
 								"Outputs.VPCID"
 							]
 						}
@@ -128,14 +148,14 @@
 								[
 									{
 										"Fn::GetAtt": [
-											"MongoStack",
-											"Outputs.PrivateSubnet1"
+											"VPCStack",
+											"Outputs.PrivateSubnet1AID"
 										]
 									},
 									{
 										"Fn::GetAtt": [
-											"MongoStack",
-											"Outputs.PrivateSubnet2"
+											"VPCStack",
+											"Outputs.PrivateSubnet2AID"
 										]
 									}
 								]
@@ -151,14 +171,14 @@
 								[
 									{
 										"Fn::GetAtt": [
-											"MongoStack",
-											"Outputs.PublicSubnet1"
+											"VPCStack",
+											"Outputs.PublicSubnet1ID"
 										]
 									},
 									{
 										"Fn::GetAtt": [
-											"MongoStack",
-											"Outputs.PublicSubnet2"
+											"VPCStack",
+											"Outputs.PublicSubnet2ID"
 										]
 									}
 								]
@@ -189,33 +209,63 @@
 				}
 			}
 		},
+		"BastionSecurityGroup": {
+			"Type" : "AWS::EC2::SecurityGroup",
+			"Properties" : {
+					"GroupDescription" : "Bastion Security Group for MongoDB",
+					"VpcId" : {
+						"Fn::GetAtt": [
+							"VPCStack",
+							"Outputs.VPCID"
+						]
+					}
+				}
+		},		
 		"MongoStack": {
 			"Type": "AWS::CloudFormation::Stack",
 			"Properties": {
-				"TemplateURL": "https://s3.amazonaws.com/todo-deploy-cloudformation/mongodb-master.template",
+				"TemplateURL": "https://aws-quickstart.s3.amazonaws.com/quickstart-mongodb/templates/mongodb.template",
 				"Parameters": {
-					"NumberOfAZs": 2,
-					"AvailabilityZones": "us-west-2a,us-west-2b",
+					"MongoDBAdminPassword": "todo-deploy",
+					"BastionSecurityGroupID": {
+						"Fn::GetAtt": [
+							"BastionSecurityGroup",
+							"GroupId"
+						]
+					},
+					"ClusterReplicaSetCount": 1,
 					"KeyPairName": {
 						"Ref": "KeyPairName"
 					},
-					"RemoteAccessCIDR": "0.0.0.0/0",
-					"MongoDBAdminPassword": "todo-deploy",
-					"ClusterReplicaSetCount": 1
+					"PrimaryNodeSubnet": {
+						"Fn::GetAtt": [
+							"VPCStack",
+							"Outputs.PrivateSubnet1AID"
+						]
+					},
+					"Secondary0NodeSubnet": {
+						"Fn::GetAtt": [
+							"VPCStack",
+							"Outputs.PrivateSubnet2AID"
+						]
+					},
+					"Secondary1NodeSubnet": {
+						"Fn::GetAtt": [
+							"VPCStack",
+							"Outputs.PrivateSubnet2AID"
+						]
+					},
+					"VPC": {
+						"Fn::GetAtt": [
+							"VPCStack",
+							"Outputs.VPCID"
+						]
+					}
 				}
 			}
 		}
 	},
 	"Outputs": {
-		"PrimaryReplicaNodeIp": {
-			"Value": {
-				"Fn::GetAtt": [
-					"MongoStack",
-					"Outputs.PrimaryReplicaNodeIp"
-				]
-			},
-			"Description": "Private IP Address of Primary Replica Node"
-		},
 		"Url": {
 			"Value": {
 				"Fn::GetAtt": [
