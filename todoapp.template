@@ -62,6 +62,16 @@
 						"Value": "6"
 					},
 					{
+						"Namespace": "aws:autoscaling:launchconfiguration",
+						"OptionName": "SecurityGroups",
+						"Value": {
+							"Fn::GetAtt": [
+								"MongoStack",
+								"Outputs.MongoDBServerAccessSecurityGroup"
+							]
+						}
+					},
+					{
 						"Namespace": "aws:elasticbeanstalk:environment",
 						"OptionName": "EnvironmentType",
 						"Value": "LoadBalanced"
